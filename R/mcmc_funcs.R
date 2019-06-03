@@ -117,7 +117,6 @@ rhats <- function(chain_files, burn = 0, ...){
   dfs_halved <- c(dfs_halved, lapply(dfs, function(df) df[(1:(n/2)),]))
   n <- n/2
   rm(dfs)
-  gc(dfs)
 
   # calculate all rhat statistics for each untransformed univariate parameter
   num_params <- ncol(dfs_halved[[1]])
