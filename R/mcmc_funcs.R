@@ -155,3 +155,102 @@ smart_pairs <- function(df, every){
         col = rep(seq(1,2),
                   each = length(rows)/2))
 }
+
+
+#' A function that helps you elicits inverse gamma prior parameters.
+#'
+#' This function takes some analyst specifications and returns the
+#' "best" parameter tuple that satisfies your criteria. The analyst
+#' specifies an ideal average for the value, and an interval (along
+#' with a given confidence percentage). If there are tuples that
+#' possess, both, coverage probabilities below and above the given
+#' percentage, this function will return the tuple that yields the
+#' given mean, and that is closest to the desired percentage. If there
+#' is no "crossing" then NULL is returned. Optionally, this function
+#' will plot the coverage probabilities.
+#' @param ideal_mean desired mean for your random variable
+#' @param percent_ci what percent confidence do you want (e.g. .95)
+#' @param lower_ci what is the lower bound on your interval?
+#' @param upper_ci what is the upper bound on your interval?
+#' @param beta_grid_left what is the lowest beta value for your grid?
+#' @param beta_grid_right what is the highest beta value for your grid?
+#' @param beta_increment how spaced apart do you want each beta grid element?
+#' @param plot whether a plot should be given as a side effect
+#' @keywords prior elicit elicitation inverseGamma
+#' @export
+#' @examples
+#' smart_pairs(fake_df, 100)
+elicitInvGamma <- function(ideal_mean, percent_ci, lower_ci,
+                           upper_ci, beta_grid_left, beta_grid_right,
+                           beta_increment, plot = T){
+  beta <- seq(beta_grid_left, beta_grid_right, beta_increment)
+  #alpha <- ideal_mean*beta/(1-ideal_mean)
+  alpha <- (beta + ideal_mean)/ideal_mean
+  prob_between <- invgamma::pinvgamma(upper_ci, shape = alpha, rate = beta) -
+    invgamma::pinvgamma(lower_ci, shape = alpha, rate = beta)
+
+  # if plot
+  if(plot){
+    plot(beta, prob_between, type ="l")
+    abline(h=.95, col = "red")
+  }
+
+  le_df <- data.frame(alpha, beta, prob_between)
+  is_cross <- any(le_df[,3] < percent_ci) && any(le_df[,3] > percent_ci)
+
+  if(is_cross){
+    le_df$abs_diff <- abs(le_df[,3] - percent_ci)
+    return(le_df[le_df$abs_diff == min(le_df$abs_diff),])
+  }else{
+    return(NULL)
+  }
+}
+
+
+#' A function that helps you elicits beta prior parameters.
+#'
+#' This function takes some analyst specifications and returns the
+#' "best" parameter tuple that satisfies your criteria. The analyst
+#' specifies an ideal average for the value, and an interval (along
+#' with a given confidence percentage). If there are tuples that
+#' possess, both, coverage probabilities below and above the given
+#' percentage, this function will return the tuple that a.) yields the
+#' given mean, and b.) that is closest to the desired percentage. If there
+#' is no "crossing" then NULL is returned. Optionally, this function
+#' will plot the coverage probabilities.
+#' @param ideal_mean desired mean for your random variable
+#' @param percent_ci what percent confidence do you want (e.g. .95)
+#' @param lower_ci what is the lower bound on your interval?
+#' @param upper_ci what is the upper bound on your interval?
+#' @param beta_grid_left what is the lowest beta value for your grid?
+#' @param beta_grid_right what is the highest beta value for your grid?
+#' @param beta_increment how spaced apart do you want each beta grid element?
+#' @param plot whether a plot should be given as a side effect
+#' @keywords prior elicit elicitation inverseGamma
+#' @export
+#' @examples
+#' smart_pairs(fake_df, 100)
+elicitBeta <- function(ideal_mean, percent_ci, lower_ci,
+                           upper_ci, beta_grid_left, beta_grid_right,
+                           beta_increment, plot = T){
+  beta <- seq(beta_grid_left, beta_grid_right, beta_increment)
+  alpha <- ideal_mean*beta/(1-ideal_mean)
+  prob_between <- pbeta(upper_ci, shape1 = alpha, shape2 = beta) -
+    pbeta(lower_ci, shape1 = alpha, shape2 = beta)
+
+  # if plot
+  if(plot){
+    plot(beta, prob_between, type ="l")
+    abline(h=.95, col = "red")
+  }
+
+  le_df <- data.frame(alpha, beta, prob_between)
+  is_cross <- any(le_df[,3] < percent_ci) && any(le_df[,3] > percent_ci)
+
+  if(is_cross){
+    le_df$abs_diff <- abs(le_df[,3] - percent_ci)
+    return(le_df[le_df$abs_diff == min(le_df$abs_diff),])
+  }else{
+    return(NULL)
+  }
+}
