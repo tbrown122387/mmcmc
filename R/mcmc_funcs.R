@@ -64,24 +64,6 @@ correlogram <- function(df, cols, burn = 0, ...){
 }
 
 
-#' A log-sum-exp function.
-#'
-#' This function calculates the function log(sum(exp(vec))) in a numerically stable way.
-#' @param x a numeric vector.
-#' @keywords log-sum-exp
-#' @export
-#' @examples
-#' log.sum.exp(rep(1e5, 3))
-#' log(sum(exp(rep(1e5,3))))
-log.sum.exp<- function(x) {
-  if ( max(abs(x)) > max(x) ) # too negative
-    offset <- min(x)
-  else  # too big
-    offset <- max(x)
-  log(sum(exp(x - offset))) + offset
-}
-
-
 #' A Gelman-Rubin convergence diagnostic function.
 #'
 #' This function calculates the Gelman-Rubin convergence diagnostic (Rhat) on some samples.
@@ -252,4 +234,26 @@ elicitBeta <- function(ideal_mean, percent_ci, lower_ci,
   }else{
     return(NULL)
   }
+}
+
+
+#' A function that evaluates the log-likelihood for a logistic regression model.
+#'
+#' This function evaluates the log-likelihood of a logistic regression model
+#' in a numerically stable way. It uses the log-sum-exp trick.
+#' @param y observed dependent variables, assumed to be coded as {0,1}.
+#' @param linkedMeans a numeric vector. The model matrix times the beta vector.
+#' @keywords prior elicit elicitation inverseGamma
+#' @export
+#' @examples
+#' xiB <- rnorm(length(y), mean = 100)
+#' logLogisticRegCndtlLike(y, xiB)
+#' sum(dbinom(y, 1, inv.logit(xiB), TRUE)) #-Inf
+logLogisticRegCndtlLike <- function(y, linkedMeans){
+  stopifnot(is.vector(linkedMeans))
+  stopifnot(is.vector(y))
+  sum(
+    mapply(function(y,xiTransposeBeta){ -logSumExp(c(0, (1-2*y)*xiTransposeBeta)) },
+           y,
+           linkedMeans))
 }
