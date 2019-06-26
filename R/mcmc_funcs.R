@@ -275,8 +275,6 @@ logLogisticRegCndtlLike <- function(y, linkedMeans){
 #' @export
 #' @examples
 #' plotSurface(-50, 50, 0.0001, 50, 20, eval_log_unnormalized_posterior, F, theta=-120, zlab = "log unnorm dens", xlab = "mu", ylab = "ss")
-
-# graph parameters
 plotSurface <- function(lowerFirst, upperFirst, lowerSecond, upperSecond,
                         numGridPointsOnEachAxis, f, contour = F, ...)
 {
