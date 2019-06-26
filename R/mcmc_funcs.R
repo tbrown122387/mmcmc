@@ -257,3 +257,39 @@ logLogisticRegCndtlLike <- function(y, linkedMeans){
            y,
            linkedMeans))
 }
+
+
+#' A function that produces a 3D plot.
+#'
+#' This function produces a 3D plot. x,y are the independent variables,
+#' and the z-axis is the dependent.
+#' @param lowerFirst lower bound of x axis
+#' @param upperFirst upper bound of x axis
+#' @param lowerSecond lower bound of y axis
+#' @param upperSecond upper bound of y axis
+#' @param numGridPointsOnEachAxis how many grid points do you want on each axis
+#' @param f the function that takes two scalar arguments (x and y) and produces one scalar argument (z)
+#' @param contour do you want a contour plot? (True or False)
+#' @param ... extra arguments to be passed to graphics::contour() or graphics::persp() (depending on what contour arg was set to)
+#' @keywords plotting 3D 3-D 3d
+#' @export
+#' @examples
+#' plotSurface(-50, 50, 0.0001, 50, 20, eval_log_unnormalized_posterior, F, theta=-120, zlab = "log unnorm dens", xlab = "mu", ylab = "ss")
+
+# graph parameters
+plotSurface <- function(lowerFirst, upperFirst, lowerSecond, upperSecond,
+                        numGridPointsOnEachAxis, f, contour = F, ...)
+{
+  A <- seq(lowerFirst, upperFirst, length.out = numGridPointsOnEachAxis)
+  B <- seq(lowerSecond, upperSecond, length.out = numGridPointsOnEachAxis)
+  args <- expand.grid(A,B)
+  z <- mapply(f, args[,1], args[,2])
+  dim(z) <- c(length(A), length(B))
+  if(contour){
+    graphics::contour(A, B, z, ...)
+  }else{
+    graphics::persp(x=A, y=B, z=z, ...)
+  }
+}
+
+
