@@ -253,7 +253,7 @@ logLogisticRegCndtlLike <- function(y, linkedMeans){
   stopifnot(is.vector(linkedMeans))
   stopifnot(is.vector(y))
   sum(
-    mapply(function(y,xiTransposeBeta){ -logSumExp(c(0, (1-2*y)*xiTransposeBeta)) },
+    mapply(function(y,xiTransposeBeta){ -matrixStats::logSumExp(c(0, (1-2*y)*xiTransposeBeta)) },
            y,
            linkedMeans))
 }
