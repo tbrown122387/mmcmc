@@ -80,7 +80,6 @@ correlogram <- function(df, cols, burn = 0, ...){
 #' files <- c('/fake/path/samps1.csv', '/fake/path/samps2.csv')
 #' rhats(files, burn = 300)
 rhats <- function(chain_files, burn = 0, ...){
-  # TODO: option for discarding burnin (or maybe put this in the ...)
   # TODO: check all files are hte same shape
   # TODO: print the first couple of rows to make sure they look ok
   if(burn > 0){
@@ -93,6 +92,11 @@ rhats <- function(chain_files, burn = 0, ...){
                   ...)
   }
   m <- 2*length(chain_files)
+  if(is.null(nrow(dfs[[1]]))){ # just a vector/one column
+    n <- length(dfs[[1]])
+  }else { # more than one column
+    n <- nrow(dfs[[1]])
+  }
   n <- nrow(dfs[[1]])
   n <- (n %/% 2)*2 # in case n is odd
   dfs_halved <- lapply(dfs, function(df) df[((n/2+1):n),])
