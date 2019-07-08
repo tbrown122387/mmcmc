@@ -97,7 +97,6 @@ rhats <- function(chain_files, burn = 0, ...){
   }else { # more than one column
     n <- nrow(dfs[[1]])
   }
-  n <- nrow(dfs[[1]])
   n <- (n %/% 2)*2 # in case n is odd
   dfs_halved <- lapply(dfs, function(df) df[((n/2+1):n),])
   dfs_halved <- c(dfs_halved, lapply(dfs, function(df) df[(1:(n/2)),]))
