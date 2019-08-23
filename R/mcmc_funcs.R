@@ -80,9 +80,9 @@ correlogram <- function(df, cols, burn = 0, ...){
 #' files <- c('/fake/path/samps1.csv', '/fake/path/samps2.csv')
 #' rhats(files, burn = 300)
 rhats <- function(chain_files, burn = 0, ...){
-  # TODO: option for discarding burnin (or maybe put this in the ...)
   # TODO: check all files are hte same shape
   # TODO: print the first couple of rows to make sure they look ok
+  
   if(burn > 0){
     dfs <- lapply(chain_files,
                   function(path) read.csv(path, header=T)[-1:-burn,],
@@ -92,19 +92,36 @@ rhats <- function(chain_files, burn = 0, ...){
                   function(path) read.csv(path, header=T),
                   ...)
   }
+  only_one_column <- is.null(nrow(dfs[[1]]))
   m <- 2*length(chain_files)
-  n <- nrow(dfs[[1]])
+  if(only_one_column){ 
+    n <- length(dfs[[1]])
+  }else { 
+    n <- nrow(dfs[[1]])
+  }
   n <- (n %/% 2)*2 # in case n is odd
-  dfs_halved <- lapply(dfs, function(df) df[((n/2+1):n),])
-  dfs_halved <- c(dfs_halved, lapply(dfs, function(df) df[(1:(n/2)),]))
+  if(only_one_column){ 
+    dfs_halved <- lapply(dfs, function(df) df[((n/2+1):n)])
+    dfs_halved <- c(dfs_halved, lapply(dfs, function(df) df[(1:(n/2))]))
+  }else { 
+    dfs_halved <- lapply(dfs, function(df) df[((n/2+1):n),])
+    dfs_halved <- c(dfs_halved, lapply(dfs, function(df) df[(1:(n/2)),]))
+  }
   n <- n/2
+  if(only_one_column){ 
+    num_params <- 1
+  }else { 
+    num_params <- ncol(dfs_halved[[1]])
+  }
   rm(dfs)
 
   # calculate all rhat statistics for each untransformed univariate parameter
-  num_params <- ncol(dfs_halved[[1]])
   rhats <- vector(mode="numeric", length = num_params)
   for(param_num in 1:num_params){
-    univariate_chains <- sapply(dfs_halved, '[', param_num) # pick out the same col from each df
+    if(only_one_column)
+      univariate_chains <- dfs_halved
+    else
+        univariate_chains <- sapply(dfs_halved, '[', param_num) # pick out the same col from each df
     psi_bar_dot_js <- sapply(univariate_chains, mean)
     psi_bar_dot_dot <- mean(psi_bar_dot_js)
     ss_j <- sapply(univariate_chains, var)
