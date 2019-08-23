@@ -291,3 +291,43 @@ plotSurface <- function(lowerFirst, upperFirst, lowerSecond, upperSecond,
 }
 
 
+#' A function that produces raw assignment code for a given object.
+#'
+#' A function that produces raw assignment code that you can copy/paste
+#' into a script. The idea is to make it more reproducible.
+#' @param d the object you have sitting in memory
+#' @param dest the file path destination that the code will get written to
+#' @param objectName the desired name of the object produced by the code.
+#' Defaults to NULL, which means the name will get generated from how you
+#' have the variable stored in your interactive session.
+#' @keywords code generation
+#' @export
+genAssigntmentCode <- function(d, dest, objectName = NULL){
+
+  if(is.null(objectName))
+    objectName <- deparse(substitute(d))
+
+  myString <- paste0(objectName, " <- c(")
+
+  if(is.matrix(d)){
+    for(i in 1:(nrow(d)-1)){
+      myString <- paste0(myString, paste(d[i,], collapse=", "), "\n")
+    }
+    myString <- paste0(myString, paste(d[i,], collapse=", "))
+
+  }else if(is.numeric(d)){
+    myString <- paste0(myString, paste(d, collapse=", "))
+
+  }else{
+    stop("no implementation for this type of object")
+  }
+
+  # write everything out
+  myString <- paste0(myString, ")")
+  fileConn<-file(dest)
+  writeLines(myString, fileConn)
+  close(fileConn)
+
+}
+
+
