@@ -4,7 +4,7 @@
 \alias{genAssigntmentCode}
 \title{A function that produces raw assignment code for a given object.}
 \usage{
-genAssigntmentCode(d, dest, objectName = NULL)
+genAssigntmentCode(d, dest, objectName)
 }
 \arguments{
 \item{d}{the object you have sitting in memory}

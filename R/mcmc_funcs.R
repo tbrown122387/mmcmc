@@ -82,7 +82,7 @@ correlogram <- function(df, cols, burn = 0, ...){
 rhats <- function(chain_files, burn = 0, ...){
   # TODO: check all files are hte same shape
   # TODO: print the first couple of rows to make sure they look ok
-  
+
   if(burn > 0){
     dfs <- lapply(chain_files,
                   function(path) read.csv(path, header=T)[-1:-burn,],
@@ -94,23 +94,23 @@ rhats <- function(chain_files, burn = 0, ...){
   }
   only_one_column <- is.null(nrow(dfs[[1]]))
   m <- 2*length(chain_files)
-  if(only_one_column){ 
+  if(only_one_column){
     n <- length(dfs[[1]])
-  }else { 
+  }else {
     n <- nrow(dfs[[1]])
   }
   n <- (n %/% 2)*2 # in case n is odd
-  if(only_one_column){ 
+  if(only_one_column){
     dfs_halved <- lapply(dfs, function(df) df[((n/2+1):n)])
     dfs_halved <- c(dfs_halved, lapply(dfs, function(df) df[(1:(n/2))]))
-  }else { 
+  }else {
     dfs_halved <- lapply(dfs, function(df) df[((n/2+1):n),])
     dfs_halved <- c(dfs_halved, lapply(dfs, function(df) df[(1:(n/2)),]))
   }
   n <- n/2
-  if(only_one_column){ 
+  if(only_one_column){
     num_params <- 1
-  }else { 
+  }else {
     num_params <- ncol(dfs_halved[[1]])
   }
   rm(dfs)
@@ -319,28 +319,27 @@ plotSurface <- function(lowerFirst, upperFirst, lowerSecond, upperSecond,
 #' have the variable stored in your interactive session.
 #' @keywords code generation
 #' @export
-genAssigntmentCode <- function(d, dest, objectName = NULL){
-
-  if(is.null(objectName))
-    objectName <- deparse(substitute(d))
-
-  myString <- paste0(objectName, " <- c(")
+genAssigntmentCode <- function(d, dest, objectName){
 
   if(is.matrix(d)){
+    myString <- paste0(objectName, " <- matrix(c(")
     for(i in 1:(nrow(d)-1)){
-      myString <- paste0(myString, paste(d[i,], collapse=", "), "\n")
+      myString <- paste0(myString, paste(d[i,], collapse=", "), ",\n")
     }
     myString <- paste0(myString, paste(d[i,], collapse=", "))
+    myString <- paste0(myString, ")")
+    myString <- paste0(myString, ", nrow=", nrow(d),")")
 
   }else if(is.numeric(d)){
+    myString <- paste0(objectName, " <- c(")
     myString <- paste0(myString, paste(d, collapse=", "))
+    myString <- paste0(myString, ")")
 
   }else{
     stop("no implementation for this type of object")
   }
 
   # write everything out
-  myString <- paste0(myString, ")")
   fileConn<-file(dest)
   writeLines(myString, fileConn)
   close(fileConn)
