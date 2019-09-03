@@ -326,7 +326,7 @@ genAssigntmentCode <- function(d, dest, objectName){
     for(i in 1:(nrow(d)-1)){
       myString <- paste0(myString, paste(d[i,], collapse=", "), ",\n")
     }
-    myString <- paste0(myString, paste(d[i,], collapse=", "))
+    myString <- paste0(myString, paste(d[nrow(d),], collapse=", "))
     myString <- paste0(myString, ")")
     myString <- paste0(myString, ", nrow=", nrow(d),")")
 
