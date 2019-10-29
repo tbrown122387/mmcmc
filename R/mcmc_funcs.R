@@ -198,7 +198,9 @@ elicitInvGamma <- function(ideal_mean, percent_ci, lower_ci,
 
   if(is_cross){
     le_df$abs_diff <- abs(le_df[,3] - percent_ci)
-    return(le_df[le_df$abs_diff == min(le_df$abs_diff),])
+    final_results <- le_df[le_df$abs_diff == min(le_df$abs_diff),]
+    rownames(final_results) <- c()
+    return(final_results)
   }else{
     return(NULL)
   }
