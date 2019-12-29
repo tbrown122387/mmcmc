@@ -295,18 +295,15 @@ logLogisticRegCndtlLike <- function(y, linkedMeans){
 #' @examples
 #' plotSurface(-50, 50, 0.0001, 50, 20, eval_log_unnormalized_posterior, F, theta=-120, zlab = "log unnorm dens", xlab = "mu", ylab = "ss")
 plotSurface <- function(lowerFirst, upperFirst, lowerSecond, upperSecond,
-                        numGridPointsOnEachAxis, f, contour = F, ...)
+                        numGridPointsOnEachAxis, f, ...)
 {
   A <- seq(lowerFirst, upperFirst, length.out = numGridPointsOnEachAxis)
   B <- seq(lowerSecond, upperSecond, length.out = numGridPointsOnEachAxis)
   args <- expand.grid(A,B)
   z <- mapply(f, args[,1], args[,2])
   dim(z) <- c(length(A), length(B))
-  if(contour){
-    graphics::contour(A, B, z, ...)
-  }else{
-    graphics::persp(x=A, y=B, z=z, ...)
-  }
+  derp <- list(x=A, y=B, z = z)
+  plotly::plot_ly(x = derp$x, y =derp$y, z = derp$z) %>% add_surface()
 }
 
 
